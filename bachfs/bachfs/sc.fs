@@ -6,9 +6,15 @@ open System
 
 OscPacket.LittleEndianByteOrder <- false
 
-let nextId =
-    let id = ref 1
-    (fun () -> id := !id + 1; !id)
+let superCollider = new IPEndPoint(IPAddress.Loopback, 57110)
+
+let id = ref 1
+let nextId = (fun () -> id := !id + 1; !id)
+    
+let stop () =
+    let msg = new OscMessage(superCollider, "/n_free")
+    msg.Append(!id) |> ignore
+    msg.Send(superCollider) |> ignore
 
 let sinOsc freq =
     let freq =
@@ -16,8 +22,7 @@ let sinOsc freq =
         | :? int as i -> i
         | :? float as f -> Convert.ToInt32(f)
         | _ -> 440
-
-    let superCollider = new IPEndPoint(IPAddress.Loopback, 57110)
+            
     let id = nextId()
 
     let msg = new OscMessage(superCollider, "/s_new")
@@ -29,10 +34,4 @@ let sinOsc freq =
     msg.Append(freq) |> ignore
 
     msg.Send(superCollider)
-
-    System.Threading.Thread.Sleep(1000)
-
-    let msg2 = new OscMessage(superCollider, "/n_free")
-    msg2.Append(id) |> ignore
-    msg2.Send(superCollider) |> ignore
 

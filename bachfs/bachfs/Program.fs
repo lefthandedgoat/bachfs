@@ -23,6 +23,7 @@ open sc
 sinOsc 300
 sinOsc 400
 sinOsc 500
+stop()
 
 
 System.Console.ReadKey()
