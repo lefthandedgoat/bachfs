@@ -8,3 +8,5 @@ nuget/*
 build/*
 tests/*
 *.suo
+.DS_Store
+*swp
