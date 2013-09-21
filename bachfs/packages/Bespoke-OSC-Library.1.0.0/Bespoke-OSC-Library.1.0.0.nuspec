@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Bespoke-OSC-Library</id>
+    <version>1.0.0</version>
+    <title>Bespoke-OSC-Library</title>
+    <authors>Bespoke Software</authors>
+    <owners>Bespoke Software</owners>
+    <licenseUrl>http://www.opensource.org/licenses/ms-pl.html</licenseUrl>
+    <projectUrl>http://www.bespokesoftware.org/wordpress/?page_id=69</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This implementation sits atop the .NET 4.0 Framework and uses TCP or UDP as the transport protocol. It includes support for Osc Messages and Bundles, and supports the following payload data types: Int32, Int64, Float, Double, String, Blob (byte array), Osc TimeTag, ASCII character, boolean, Nil, Infinitum, and RGBA color.</description>
+    <releaseNotes />
+    <copyright />
+    <language />
+    <references>
+      <reference file="Bespoke.Common.dll" />
+      <reference file="Bespoke.Common.Osc.dll" />
+    </references>
+  </metadata>
+</package>
