@@ -20,9 +20,9 @@ open sc
 // http://github.com/lefthandedgoat/                         //
 ///////////////////////////////////////////////////////////////
 
-sinOsc 300
-sinOsc 400
-sinOsc 500
+let tone = sinOsc
+
+tone 300
 stop()
 
 
