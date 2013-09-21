@@ -1,9 +1,0 @@
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\bachfs.exe.config
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\bachfs.XML
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\bachfs.exe
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\bachfs.pdb
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\FSharp.Core.dll
-C:\projects\bachfs\bachfs\bachfs\bin\Debug\FSharp.Core.xml
-C:\projects\bachfs\bachfs\bachfs\obj\Debug\bachfs.fsprojResolveAssemblyReference.cache
-C:\projects\bachfs\bachfs\bachfs\obj\Debug\bachfs.exe
-C:\projects\bachfs\bachfs\bachfs\obj\Debug\bachfs.pdb

@@ -1,4 +1,0 @@
-C:\projects\bachfs\bachfs\Bespoke\bin\Debug\Bespoke.dll
-C:\projects\bachfs\bachfs\Bespoke\bin\Debug\Bespoke.pdb
-C:\projects\bachfs\bachfs\Bespoke\obj\Debug\Bespoke.dll
-C:\projects\bachfs\bachfs\Bespoke\obj\Debug\Bespoke.pdb
