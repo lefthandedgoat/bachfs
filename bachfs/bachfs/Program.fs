@@ -35,14 +35,17 @@ open sc
 // Sine waves                                                //
 ///////////////////////////////////////////////////////////////
 
-let tone = sinOsc
+let tone freq = SinOsc freq |> play
+
 let doubleTone freq1 freq2 =
     tone freq1
     tone freq2
 
-tone 300
-doubleTone 300 300
-stop()
+let beep freq duration = Envelope(1, 0, duration, (SinOsc freq)) |> play
 
-beep 300 1
+tone 300.0
+doubleTone 300.0 300.0
+stop()
+beep 300.0 1.0
+
 System.Console.ReadKey()

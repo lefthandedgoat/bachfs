@@ -1,11 +1,16 @@
+//Server.killAll
+//s.dumpOSC(0)
+
 (
 x = OSCFunc( { | msg, time, addr, port |
-	var freq = msg[1].asFloat;
-	var duration = msg[2].asFloat;	
+	var start = msg[1].asFloat;
+	var stop = msg[2].asFloat;	
+	var duration = msg[3].asFloat;	
+	var freq = msg[4].asFloat;
 	{
-		var env = Env.new([1,0], [duration],'linear');
+		var env = Env.new([start,stop], [duration],'linear', 2);
 		var gen = EnvGen.kr(env);
 		SinOsc.ar(freq) * gen * 1
 	}.play
-}, '/beep' );
+}, '/envelopedSinOsc' );
 )
