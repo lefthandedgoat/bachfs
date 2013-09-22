@@ -1,0 +1,11 @@
+(
+x = OSCFunc( { | msg, time, addr, port |
+	var freq = msg[1].asFloat;
+	var duration = msg[2].asFloat;	
+	{
+		var env = Env.new([1,0], [duration],'linear');
+		var gen = EnvGen.kr(env);
+		SinOsc.ar(freq) * gen * 1
+	}.play
+}, '/beep' );
+)
