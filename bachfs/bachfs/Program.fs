@@ -80,3 +80,16 @@ bell 300.0 10.0 []
 bell 600.0 10.0 []
 bell 500.0 10.0 [0.0]
 bell 400.0 10.0 [0.0; 0.0]
+
+
+///////////////////////////////////////////////////////////////
+// Equal temperament                                         //
+///////////////////////////////////////////////////////////////
+
+let midi2hertz (midi : int) = 8.1757989156 * (System.Math.Pow(2.0, (Convert.ToDouble(midi) / 12.0)))
+
+midi2hertz 69
+
+let ding midi = bell (midi2hertz midi) 3.0 []
+
+ding 69
