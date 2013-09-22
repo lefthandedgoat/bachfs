@@ -59,7 +59,7 @@ stop()
 
 let bell freq duration harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
-    let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8]
+    let harmonicSeries = [1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
     let component' harmonic proportion =
@@ -93,3 +93,36 @@ midi2hertz 69
 let ding midi = bell (midi2hertz midi) 3.0 []
 
 ding 69
+
+
+///////////////////////////////////////////////////////////////
+// Musical events                                            //
+///////////////////////////////////////////////////////////////
+
+type note = { time : float; pitch : int}
+let note time pitch = {time = time; pitch = pitch}
+
+note 3.0 4
+{time = 3.0; pitch = 4}
+
+let play notes =
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+    let rec play notes =
+        match notes with
+        | [] -> ()
+        | note :: _ -> 
+            if Convert.ToDouble(sw.ElapsedMilliseconds) >= note.time then 
+                ding note.pitch
+                play notes.Tail
+            else
+                play notes
+
+    play notes
+    sw.Stop()
+
+let evenMelody (pitches : int list) =
+    let times = [1 .. pitches.Length] |> List.mapi (fun index _ -> Convert.ToDouble(index) * (1000.0/3.0))
+    let notes = List.map2 (fun time pitch -> note time pitch) times pitches
+    play notes
+
+evenMelody [70 .. 80]
