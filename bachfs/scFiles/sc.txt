@@ -18,11 +18,12 @@ x = OSCFunc( { | msg, time, addr, port |
 (
 x = OSCFunc( { | msg, time, addr, port |
 	
-	var size = msg[1].asFloat;
+	var size = msg[1].asInt;
 	var sins = Array.new(size);
 	var numberOfArgumentsPerEnvelope = 6;	
 			
 	{ 
+		var mix = 
 		Mix.fill(size, { 
 			arg index;
 			var attack = msg[2 + (index * numberOfArgumentsPerEnvelope)].asFloat;			
@@ -34,7 +35,9 @@ x = OSCFunc( { | msg, time, addr, port |
 			var env = Env.new([0, level, 0], [attack, release], curve);
 			var gen = EnvGen.kr(env);
 			SinOsc.ar(freq) * gen * 0.5 * proportion			
-		}) * (1/size)
+		}) * (1/size);
+		DetectSilence.ar(mix, doneAction:2);
+		mix
 	}.play;	
 }, '/mixedPercEnvelopes' );
 )

@@ -59,7 +59,7 @@ stop()
 
 let bell freq duration harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
-    let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
+    let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
     let component' harmonic proportion =
@@ -69,4 +69,6 @@ let bell freq duration harmonics =
     DetectSilence whole |> play
 
 
+beep 300.0 1.0
 bell 300.0 10.0 []
+
