@@ -14,3 +14,38 @@ x = OSCFunc( { | msg, time, addr, port |
 	}.play
 }, '/envelopedSinOsc' );
 )
+
+(
+x = OSCFunc( { | msg, time, addr, port |
+	
+	var size = msg[1].asFloat;
+	var sins = Array.new(size);
+	var numberOfArgumentsPerEnvelope = 6;	
+			
+	{ 
+		Mix.fill(size, { 
+			arg index;
+			var attack = msg[2 + (index * numberOfArgumentsPerEnvelope)].asFloat;			
+			var release = msg[3 + (index * numberOfArgumentsPerEnvelope)].asFloat;
+			var level = msg[4 + (index * numberOfArgumentsPerEnvelope)].asFloat;
+			var curve = msg[5 + (index * numberOfArgumentsPerEnvelope)].asFloat;
+			var freq = msg[6 + (index * numberOfArgumentsPerEnvelope)].asFloat;
+			var proportion = msg[7 + (index * numberOfArgumentsPerEnvelope)].asFloat;
+			var env = Env.new([0, level, 0], [attack, release], curve);
+			var gen = EnvGen.kr(env);
+			SinOsc.ar(freq) * gen * 0.5 * proportion			
+		}) * (1/size)
+	}.play;	
+}, '/mixedPercEnvelopes' );
+)
+
+
+//m = NetAddr("127.0.0.1", NetAddr.langPort);
+
+//m.sendMsg("/envelopedSinOsc", 1, 0, 1, 300);
+
+m.sendMsg("/mixedPercEnvelopes", 1, 
+	0.01, 1.0, 1.0, -4.0, 400.0, 1.0,
+	0.01, 0.6, 1.0, -4.0, 800.0, 1.0
+);
+
