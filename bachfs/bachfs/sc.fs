@@ -24,18 +24,12 @@ let superColliderLanguage = new IPEndPoint(IPAddress.Loopback, 57120)
 
 let id = ref 1
 let nextId = (fun () -> id := !id + 1; !id)
-    
-let mutable playing : int list = []
 
 let private tofloat32 (f : float) = f |> Convert.ToSingle
 
 let stop () =
-    playing
-    |> List.iter (fun i ->
-        let msg = new OscMessage(superCollider, "/n_free")
-        msg.Append(i) |> ignore
-        msg.Send(superCollider) |> ignore)
-    playing <- []
+    let msg = new OscMessage(superCollider, "/stopAll")
+    msg.Send(superColliderLanguage) |> ignore
 
 let private sinOsc (freq : float) =                
     let id = nextId()
@@ -46,9 +40,7 @@ let private sinOsc (freq : float) =
     msg.Append(1) |> ignore
     msg.Append(0) |> ignore
     msg.Append("freq") |> ignore
-    msg.Append(tofloat32 freq) |> ignore
-        
-    playing <- playing @ [id]
+    msg.Append(tofloat32 freq) |> ignore        
     msg.Send(superCollider)
     
 let private envelope start stop duration command =
@@ -88,8 +80,19 @@ let private detectSilence command =
         | _ -> failwith "boom"
     | _ -> failwith "booooom"
     
+let private mix commands =
+    match commands with
+    | SinOsc(freq1) :: SinOsc(freq2) :: [] -> 
+        let msg = new OscMessage(superCollider, "/mixedSinOsc")
+        msg.Append(tofloat32 freq1) |> ignore
+        msg.Append(tofloat32 freq2) |> ignore
+        msg.Send(superColliderLanguage)
+    | _ -> failwith "bo00om"
+
 let play command =
     match command with
     | SinOsc(freq) -> sinOsc freq
     | Envelope(start, stop, duration, command) -> envelope start stop duration command
     | DetectSilence(command) -> detectSilence command
+    | Mix(commands) -> mix commands
+    | _ -> failwith "demoware goes boom"

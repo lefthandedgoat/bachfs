@@ -37,14 +37,12 @@ open sc
 
 let tone freq = SinOsc freq |> play
 
-let doubleTone freq1 freq2 =
-    tone freq1
-    tone freq2
+let doubleTone freq1 freq2 = Mix [SinOsc freq1; SinOsc freq2] |> play
 
 let beep freq duration = Envelope(1.0, 0.0, duration, (SinOsc freq)) |> play
 
 tone 300.0
-doubleTone 300.0 300.0
+doubleTone 300.0 300.5
 beep 300.0 1.0
 stop()
 
