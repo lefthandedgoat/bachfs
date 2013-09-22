@@ -7,6 +7,7 @@ open System
 OscPacket.LittleEndianByteOrder <- false
 
 let superCollider = new IPEndPoint(IPAddress.Loopback, 57110)
+let superColliderLanguage = new IPEndPoint(IPAddress.Loopback, 57121)
 
 let id = ref 1
 let nextId = (fun () -> id := !id + 1; !id)
@@ -34,10 +35,16 @@ let sinOsc freq =
     let msg = new OscMessage(superCollider, "/s_new")
     msg.Append("default") |> ignore
     msg.Append(id) |> ignore
-    msg.Append(0) |> ignore
+    msg.Append(1) |> ignore
     msg.Append(0) |> ignore
     msg.Append("freq") |> ignore
     msg.Append(frq) |> ignore
 
     msg.Send(superCollider)
     playing <- playing @ [id]
+
+let beep freq duration =
+    let msg = new OscMessage(superCollider, "/beep")    
+    msg.Append(freq) |> ignore
+    msg.Append(duration) |> ignore
+    msg.Send(superColliderLanguage)
