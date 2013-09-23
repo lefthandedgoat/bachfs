@@ -20,7 +20,7 @@
 open System
 open sc
 
-
+let SKIP = -100
 
 
 
@@ -88,7 +88,7 @@ let midi2hertz (midi : int) = 8.1757989156 * (System.Math.Pow(2.0, (Convert.ToDo
 
 midi2hertz 69
 
-let ding midi = bell (midi2hertz midi) 3.0 []
+let ding midi = if midi <> SKIP then bell (midi2hertz midi) 3.0 []
 
 ding 69
 
@@ -140,14 +140,20 @@ let from offset partial = offset + partial
 let scale intervals =        
     let offset = ref 0
     let scaled = [!offset] @ (intervals |> List.map (fun i -> offset := !offset + i; !offset))
-    (fun position -> scaled.[position])
+    (fun position -> 
+        if position = SKIP then SKIP
+        else scaled.[position])
     
 
 let major = scale [2; 2; 1; 2; 2; 2; 1]
 
-let B = from 59
 let C = from 60
+let D = from 62
+let E = from 64
 let F = from 65
+let G = from 67
+let A = from 69
+let B = from 71
 
 //(comp C major) 0
 
@@ -162,8 +168,18 @@ let blues = scale [3; 2; 1; 1; 3; 2]
 let pentatonic = scale [3; 2; 2; 3; 2]
 let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 
-[0 .. 6]  //major/minor 6, blues 5, pent 4, chromatic 11
+[0 .. 5]  //major/minor 6, blues 5, pent 4, chromatic 11
 |> List.rev
-|> List.append [0 .. 7]
-|> List.map (fun note -> (comp C pentatonic) note)
+|> List.append [0 .. 6]
+|> List.map (comp C blues)
 |> evenMelody
+
+//FRERE JACQUES
+[0; 1; 2; 0; 0; 1; 2; 0; 2; 3; 4; SKIP; 2; 3; 4; SKIP; ]
+|> List.map (comp D major)
+|> evenMelody 
+
+///////////////////////////////////////////////////////////////
+// Melody                                                    //
+///////////////////////////////////////////////////////////////
+
