@@ -201,7 +201,15 @@ let rowRowRowYourBoat =
 
     let times = 
         let start = ref 0.0
-        [!start] @ (durations |> List.tail |> List.map (fun duration -> start := !start + duration; !start))        
+        //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
+        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
 
     List.map2 note times pitches
 
+let bpm beats = fun beat -> (beat * 60.0 * 1000.0) / beats
+//(bpm 120.0) 4.0
+
+rowRowRowYourBoat
+|> List.map (fun n -> note ((bpm 90.0) n.time) n.pitch )
+|> List.map (fun n -> note n.time ((comp C major) n.pitch))
+|> play
