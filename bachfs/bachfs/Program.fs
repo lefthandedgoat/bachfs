@@ -216,3 +216,19 @@ rowRowRowYourBoat
 |> List.map (alterTime (bpm 90.0))
 |> List.map (alterPitch (comp C major))
 |> play
+
+let run fromsAndTos =
+    let rec run fromsAndTos accum =
+        match fromsAndTos with
+        | [] -> accum
+        | x :: [] -> accum
+        | x :: y :: _ when x <= y && accum = [] -> run fromsAndTos.Tail (accum @ [x .. y])
+        | x :: y :: _ when x <= y -> run fromsAndTos.Tail (accum @ [x + 1 .. y])        
+        | x :: y :: _ when accum = [] -> run fromsAndTos.Tail (accum @ (List.rev [y .. x]))
+        | x :: y :: _ -> run fromsAndTos.Tail (accum @ (List.rev [y .. x - 1]))
+
+    run fromsAndTos []
+
+run [2; 0; 4; 0; 6; 0]
+|> List.map (comp D major)
+|> evenMelody 
