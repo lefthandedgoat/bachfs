@@ -183,6 +183,9 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 // Melody                                                    //
 ///////////////////////////////////////////////////////////////
 
+let alterTime f n = note (f n.time) n.pitch
+let alterPitch f n = note n.time (f n.pitch)
+
 let rowRowRowYourBoat =
     let pitches = 
         [0; 0; 0; 1; 2;
@@ -210,6 +213,6 @@ let bpm beats = fun beat -> (beat * 60.0 * 1000.0) / beats
 //(bpm 120.0) 4.0
 
 rowRowRowYourBoat
-|> List.map (fun n -> note ((bpm 90.0) n.time) n.pitch )
-|> List.map (fun n -> note n.time ((comp C major) n.pitch))
+|> List.map (alterTime (bpm 90.0))
+|> List.map (alterPitch (comp C major))
 |> play
