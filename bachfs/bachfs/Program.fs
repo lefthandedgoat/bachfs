@@ -124,3 +124,46 @@ let evenMelody (pitches : int list) =
     play notes
 
 evenMelody [70 .. 80]
+
+
+///////////////////////////////////////////////////////////////
+// Scale                                                     //
+///////////////////////////////////////////////////////////////
+
+let comp note scale = scale >> note
+let compp note sharpOrFlat scale = scale >> note >> sharpOrFlat
+let inc number = number + 1
+let dec number = number - 1
+
+let from offset partial = offset + partial
+
+let scale intervals =        
+    let offset = ref 0
+    let scaled = [!offset] @ (intervals |> List.map (fun i -> offset := !offset + i; !offset))
+    (fun position -> scaled.[position])
+    
+
+let major = scale [2; 2; 1; 2; 2; 2; 1]
+
+let B = from 59
+let C = from 60
+let F = from 65
+
+//(comp C major) 0
+
+let sharp = inc
+let flat = dec
+
+//(compp C flat major) 3
+
+//alternative scales
+let minor = scale [2; 1; 2; 2; 1; 2; 2]
+let blues = scale [3; 2; 1; 1; 3; 2]
+let pentatonic = scale [3; 2; 2; 3; 2]
+let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
+
+[0 .. 6]  //major/minor 6, blues 5, pent 4, chromatic 11
+|> List.rev
+|> List.append [0 .. 7]
+|> List.map (fun note -> (comp C pentatonic) note)
+|> evenMelody
