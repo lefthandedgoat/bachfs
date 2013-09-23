@@ -137,14 +137,21 @@ let dec number = number - 1
 
 let from offset partial = offset + partial
 
-let scale intervals =        
+let scale intervals =
     let offset = ref 0
-    let scaled = [!offset] @ (intervals |> List.map (fun i -> offset := !offset + i; !offset))
+    let scale intervals = intervals |> List.map (fun i -> offset := !offset + i; !offset)    
+    let reversescale intervals = intervals |> List.map (fun i -> offset := !offset - i; !offset)
+
+    //cheese: generate three sets so we have plenty of notes to play with
+    let scaled = [0] @ (scale intervals) @ (scale intervals) @ (scale intervals)
+    offset := 0
+    let reversescaled = [0] @ (reversescale intervals) @ (reversescale intervals) @ (reversescale intervals)
+    
     (fun position -> 
         if position = SKIP then SKIP
+        elif position < 0 then reversescaled.[(position * -1)]
         else scaled.[position])
-    
-
+   
 let major = scale [2; 2; 1; 2; 2; 2; 1]
 
 let C = from 60
@@ -171,7 +178,7 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 [0 .. 5]  //major/minor 6, blues 5, pent 4, chromatic 11
 |> List.rev
 |> List.append [0 .. 6]
-|> List.map (comp C blues)
+|> List.map (comp C chromatic)
 |> evenMelody
 
 //FRERE JACQUES
@@ -229,6 +236,6 @@ let run fromsAndTos =
 
     run fromsAndTos []
 
-run [2; 0; 4; 0; 6; 0]
-|> List.map (comp D major)
+run [0; 4; -1; 1; 0]
+|> List.map (comp G major)
 |> evenMelody 
