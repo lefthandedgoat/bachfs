@@ -183,3 +183,25 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 // Melody                                                    //
 ///////////////////////////////////////////////////////////////
 
+let rowRowRowYourBoat =
+    let pitches = 
+        [0; 0; 0; 1; 2;
+        // Row, row, row your boat,
+        2; 1; 2; 3; 4; 
+        // Gently down the stream,
+        7; 7; 7; 4; 4; 4; 2; 2; 2; 0; 0; 0; 
+        // (take 4 (repeat "merrily"))
+        4; 3; 2; 1; 0]
+        // Life is but a dream!
+    let durations =
+        [1.0; 1.0; 2.0/3.0; 1.0/3.0; 1.0;
+        2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;
+        1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0;
+        2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;]
+
+    let times = 
+        let start = ref 0.0
+        [!start] @ (durations |> List.tail |> List.map (fun duration -> start := !start + duration; !start))        
+
+    List.map2 note times pitches
+
