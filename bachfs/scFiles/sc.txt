@@ -17,6 +17,24 @@ x = OSCFunc( { | msg, time, addr, port |
 
 (
 x = OSCFunc( { | msg, time, addr, port |
+	var freq1 = msg[1].asFloat;
+	var freq2 = msg[2].asFloat;
+	{
+		var sin1 = SinOsc.ar(freq1);
+		var sin2 = SinOsc.ar(freq2);
+		Mix([sin1, sin2])
+	}.play
+}, '/mixedSinOsc' );
+)
+
+(
+x = OSCFunc( { | msg, time, addr, port |
+	s.freeAll
+}, '/stopAll' );
+)
+
+(
+x = OSCFunc( { | msg, time, addr, port |
 	
 	var size = msg[1].asInt;
 	var sins = Array.new(size);
@@ -52,3 +70,10 @@ m.sendMsg("/mixedPercEnvelopes", 1,
 	0.01, 0.6, 1.0, -4.0, 800.0, 1.0
 );
 
+(
+{
+	var sin1 = SinOsc.ar(300);
+	var sin2 = SinOsc.ar(300.5);
+	Mix([sin1, sin2])
+}.play
+)
