@@ -23,7 +23,9 @@ open System
 open sc
 
 let SKIP = -100
-
+let mapcat f list = 
+    List.map f list
+    |> List.fold (fun acc list -> acc @ list) []
 
 
 
@@ -195,6 +197,10 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 
 let alterTime f n = note (f n.time) n.pitch
 let alterPitch f n = note n.time (f n.pitch)
+let duration2Times durations =
+        let start = ref 0.0
+        //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
+        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
 
 let rowRowRowYourBoat =
     let pitches = 
@@ -211,11 +217,7 @@ let rowRowRowYourBoat =
         2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;
         1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0;
         2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;]
-
-    let times = 
-        let start = ref 0.0
-        //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
-        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
+    let times = duration2Times durations
 
     List.map2 note times pitches
 
@@ -227,6 +229,8 @@ rowRowRowYourBoat
 |> List.map (alterPitch (comp C major))
 |> play
 
+//runs
+
 let run fromsAndTos =
     let rec run fromsAndTos accum =
         match fromsAndTos with
@@ -237,34 +241,45 @@ let run fromsAndTos =
         | x :: y :: _ when accum = [] -> run fromsAndTos.Tail (accum @ (List.rev [y .. x]))
         | x :: y :: _ -> run fromsAndTos.Tail (accum @ (List.rev [y .. x - 1]))
 
-    run fromsAndTos []
+    match fromsAndTos with
+    | x :: [] -> [x]
+    | _ -> run fromsAndTos []
 
 run [0; 4; -1; 1; 0]
 |> List.map (comp G major)
 |> evenMelody
 
-let repeats times duration = [for x in [1 .. times] do yield duration]
+//bach
+
+let repeats timeDuration = timeDuration |> mapcat (fun (time, duration) -> [for x in [1 .. time] do yield duration])
+let runs runs = List.fold (fun acc list -> acc @ list) [] runs
+
+let melody =
+    let call =
+        let pitches = runs [run [0; -1; 3; 0]; [4]; run [1; 8]]
+        let durations = repeats [(2, 1.0/4.0); (1, 1.0/2.0); (14, 1.0/4.0); (1, 3.0/2.0)]
+        let times = duration2Times durations
+        List.map2 note times pitches
+    let response =
+        let pitches = runs [[7; -1; 0]; [0; -3]]
+        let durations = repeats [(10, 1.0/4.0); (1, 1.0/2.0); (2, 1.0/4.0); (1, 9.0/4.0);]            
+        let times = duration2Times durations
+        List.map2 note times pitches
+    let development =
+        let pitches = runs [[4]; [4]; run [2; -3]; run [-1; -2]; [0]; run [3; 5]; [1]; [1]; run [1; 2]; run [-1; 1; -1]; run [5; 0]]
+        let durations = repeats [(1, 3.0/4.0); (12, 1.0/4.0); (1, 1.0/2.0); (1, 1.0); (1, 1.0/2.0); (12, 1.0/4.0); (1, 3.0)]
+        let times = duration2Times durations
+        List.map2 note times pitches
+    ()
 
 let bass =
-    let triples notes = 
-        notes 
-        |> List.map (fun x -> [x; x ;x]) 
-        |> List.fold (fun acc list -> acc @ list) []
-    let pitches = 
-        (run [-7; -10] |> triples) 
-        @ (run [-12; -10] |> triples) 
-        @ (run [5; 0]) 
-        @ (run [6; 0])
-    let durations = 
-        repeats 21 1.0
-        @ repeats 13 (1.0/4.0)
-    let times =
-        let start = ref 0.0
-            //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
-        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
+    let triples notes = notes |> mapcat (fun x -> [x; x ;x]) 
+    let pitches = runs [run [-7; -10] |> triples; run [-12; -10] |> triples; run [5; 0]; run [6; 0]]
+    let durations = repeats [(21, 1.0); (13, 1.0/4.0)]
+    let times = duration2Times durations    
     List.map2 note times pitches
 
 bass
 |> List.map (alterTime (bpm 90.0))
-|> List.map (alterPitch (comp C major))
+|> List.map (alterPitch (comp G major))
 |> play
