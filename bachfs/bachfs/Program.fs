@@ -258,4 +258,13 @@ let bass =
     let durations = 
         repeats 21 1.0
         @ repeats 13 (1.0/4.0)
-    List.map2 note durations pitches
+    let times =
+        let start = ref 0.0
+            //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
+        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
+    List.map2 note times pitches
+
+bass
+|> List.map (alterTime (bpm 90.0))
+|> List.map (alterPitch (comp C major))
+|> play
