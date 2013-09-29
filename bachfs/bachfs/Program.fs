@@ -254,24 +254,25 @@ run [0; 4; -1; 1; 0]
 let repeats timeDuration = timeDuration |> mapcat (fun (time, duration) -> [for x in [1 .. time] do yield duration])
 let runs runs = runs |> mapcat run
 
-let melody =
+let melody = 
     let call =
         let pitches = runs [[0; -1; 3; 0]; [4]; [1; 8]]
         let durations = repeats [(2, 1.0/4.0); (1, 1.0/2.0); (14, 1.0/4.0); (1, 3.0/2.0)]
-        let times = duration2Times durations
-        List.map2 note times pitches
+        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations
     let response =
         let pitches = runs [[7; -1; 0]; [0; -3]]
         let durations = repeats [(10, 1.0/4.0); (1, 1.0/2.0); (2, 1.0/4.0); (1, 9.0/4.0);]            
-        let times = duration2Times durations
-        List.map2 note times pitches
+        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations
     let development =
         let pitches = runs [[4]; [4]; [2; -3]; [-1; -2]; [0]; [3; 5]; [1]; [1]; [1; 2]; [-1; 1; -1]; [5; 0]]
         let durations = repeats [(1, 3.0/4.0); (12, 1.0/4.0); (1, 1.0/2.0); (1, 1.0); (1, 1.0/2.0); (12, 1.0/4.0); (1, 3.0)]
-        let times = duration2Times durations
-        List.map2 note times pitches
-    call @ response @ development
-
+        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations    
+    let whole = call @ response @ development
+    let pitches = whole |> List.map(fun (pitch, duration) -> pitch)
+    let durations = whole |> List.map(fun (pitch, duration) -> duration)
+    let times = duration2Times durations
+    List.map2 note times pitches
+    
 let bass =
     let triples notes = notes |> mapcat (fun x -> [x; x ;x]) 
     let pitches = (run [-7; -10] |> triples) @ (run [-12; -10] |> triples) @ run [5; 0] @ run [6; 0]
@@ -279,7 +280,9 @@ let bass =
     let times = duration2Times durations    
     List.map2 note times pitches
 
+(*
 bass
 |> List.map (alterTime (bpm 90.0))
 |> List.map (alterPitch (comp G major))
 |> play
+*)
