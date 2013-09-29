@@ -9,6 +9,8 @@
 // http://github.com/ctford/leipzig                          //
 // http://github.com/overtone/overtone                       //
 //                                                           //
+//sheet music:                                               //
+//http://www.ibiblio.org/mutopia/ftp/BachJS/BWV988/bwv-988-v12/bwv-988-v12-a4.pdf//
 // Converted to f# by Chris Holt                             //
 // @lefthandedgoat                                           //
 // http://github.com/lefthandedgoat/                         //
@@ -42,7 +44,7 @@ let doubleTone freq1 freq2 = Mix [SinOsc freq1; SinOsc freq2] |> play
 let beep freq duration = Envelope(1.0, 0.0, duration, (SinOsc freq)) |> play
 
 tone 300.0
-doubleTone 300.0 300.5
+doubleTone 300.0 300.0
 beep 300.0 1.0
 stop()
 
@@ -57,7 +59,7 @@ stop()
 
 let bell freq duration harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
-    let harmonicSeries = [1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
+    let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
     let component' harmonic proportion =
@@ -100,8 +102,8 @@ ding 69
 type note = { time : float; pitch : int}
 let note time pitch = {time = time; pitch = pitch}
 
-note 3.0 4
-{time = 3.0; pitch = 4}
+//note 3.0 4
+//{time = 3.0; pitch = 4}
 
 let play notes =
     let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -155,14 +157,15 @@ let scale intervals =
 let major = scale [2; 2; 1; 2; 2; 2; 1]
 
 let C = from 60
+
+//(comp C major) 0
+
 let D = from 62
 let E = from 64
 let F = from 65
 let G = from 67
 let A = from 69
 let B = from 71
-
-//(comp C major) 0
 
 let sharp = inc
 let flat = dec
@@ -175,10 +178,10 @@ let blues = scale [3; 2; 1; 1; 3; 2]
 let pentatonic = scale [3; 2; 2; 3; 2]
 let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 
-[0 .. 5]  //major/minor 6, blues 5, pent 4, chromatic 11
+[0 .. 6]  //major/minor 6, blues 5, pent 4, chromatic 11
 |> List.rev
-|> List.append [0 .. 6]
-|> List.map (comp C chromatic)
+|> List.append [0 .. 7]
+|> List.map (comp C major)
 |> evenMelody
 
 //FRERE JACQUES
@@ -238,4 +241,21 @@ let run fromsAndTos =
 
 run [0; 4; -1; 1; 0]
 |> List.map (comp G major)
-|> evenMelody 
+|> evenMelody
+
+let repeats times duration = [for x in [1 .. times] do yield duration]
+
+let bass =
+    let triples notes = 
+        notes 
+        |> List.map (fun x -> [x; x ;x]) 
+        |> List.fold (fun acc list -> acc @ list) []
+    let pitches = 
+        (run [-7; -10] |> triples) 
+        @ (run [-12; -10] |> triples) 
+        @ (run [5; 0]) 
+        @ (run [6; 0])
+    let durations = 
+        repeats 21 1.0
+        @ repeats 13 (1.0/4.0)
+    List.map2 note durations pitches
