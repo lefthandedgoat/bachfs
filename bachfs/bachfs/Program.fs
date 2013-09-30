@@ -286,3 +286,24 @@ bass
 |> List.map (alterPitch (comp G major))
 |> play
 *)
+
+///////////////////////////////////////////////////////////////
+// Canon                                                     //
+///////////////////////////////////////////////////////////////
+
+let canon f (notes : note list) = 
+    notes @ (f notes)
+    |> List.sortBy (fun note -> note.time)
+
+//varieties  of canon
+let simple wait = List.map (fun note -> { note with time = note.time + wait})
+
+let interval interval = List.map (fun note -> { note with pitch = note.pitch + interval})
+
+//let mirror = List.map (fun note
+
+rowRowRowYourBoat
+|> (canon (simple 4.0))
+|> List.map (alterTime (bpm 90.0))
+|> List.map (alterPitch (comp C major))
+|> play
