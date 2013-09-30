@@ -71,14 +71,17 @@ let private detectSilence command =
         let count = List.length commands
         msg.Append(count) |> ignore
         commands |> List.iter addPercEnvelop
-        msg.Send(superColliderLanguage)
+        
+    let msg = new OscMessage(superCollider, "/mixedPercEnvelopes")
 
     match command with
     | Mix(commands) ->
         match commands with
-        | PercEnvelope(_,_,_,_,_,_) :: _ -> matchPercEnvelope commands (new OscMessage(superCollider, "/mixedPercEnvelopes"))
+        | PercEnvelope(_,_,_,_,_,_) :: _ -> matchPercEnvelope commands msg
         | _ -> failwith "boom"
     | _ -> failwith "booooom"
+
+    msg.Send(superColliderLanguage)
     
 let private mix commands =
     match commands with

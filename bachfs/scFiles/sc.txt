@@ -2,7 +2,7 @@
 //s.dumpOSC(0)
 
 (
-x = OSCFunc( { | msg, time, addr, port |
+a = OSCFunc( { | msg, time, addr, port |
 	var start = msg[1].asFloat;
 	var stop = msg[2].asFloat;	
 	var duration = msg[3].asFloat;	
@@ -13,10 +13,8 @@ x = OSCFunc( { | msg, time, addr, port |
 		SinOsc.ar(freq) * gen * 1
 	}.play
 }, '/envelopedSinOsc' );
-)
 
-(
-x = OSCFunc( { | msg, time, addr, port |
+b = OSCFunc( { | msg, time, addr, port |
 	var freq1 = msg[1].asFloat;
 	var freq2 = msg[2].asFloat;
 	{
@@ -25,16 +23,12 @@ x = OSCFunc( { | msg, time, addr, port |
 		Mix([sin1, sin2])
 	}.play
 }, '/mixedSinOsc' );
-)
 
-(
-x = OSCFunc( { | msg, time, addr, port |
+c = OSCFunc( { | msg, time, addr, port |
 	s.freeAll
 }, '/stopAll' );
-)
 
-(
-x = OSCFunc( { | msg, time, addr, port |
+d = OSCFunc( { | msg, time, addr, port |
 	
 	var size = msg[1].asInt;
 	var sins = Array.new(size);

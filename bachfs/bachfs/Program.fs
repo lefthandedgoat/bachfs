@@ -45,11 +45,12 @@ let doubleTone freq1 freq2 = Mix [SinOsc freq1; SinOsc freq2] |> play
 
 let beep freq duration = Envelope(1.0, 0.0, duration, (SinOsc freq)) |> play
 
+(*
 tone 300.0
 doubleTone 300.0 300.0
 beep 300.0 1.0
 stop()
-
+*)
 
 
 
@@ -58,31 +59,36 @@ stop()
 ///////////////////////////////////////////////////////////////
 // Harmonics                                                 //
 ///////////////////////////////////////////////////////////////
-
-let bell freq duration harmonics =
+//
+let bells (freqs : float list) (durations : float list) harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
     let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
-    let component' harmonic proportion =
+    let component' (freqDuration : (float * float)) (harmonic : float) (proportion : float) =
+        let freq, duration = freqDuration
         PercEnvelope(0.01, (proportion * duration), 1.0, -4.0, proportion, (SinOsc (harmonic * freq)))
-    let whole = 
-        Mix (List.map2 component' harmonicSeries proportions)
+    let freqDurs = List.map2 (fun freq dur -> (freq, dur)) freqs durations
+    let whole =         
+        Mix (mapcat (fun freqDur -> List.map2 (fun harmonic proportion -> component' freqDur harmonic proportion) harmonicSeries proportions) freqDurs)
     DetectSilence whole |> play
 
-
+let bell freq duration harmonics = bells [freq] [duration] harmonics
+    
+(*
 beep 300.0 1.0
 bell 300.0 10.0 []
-
+*)
 
 /////////////////////////////////////////////////////
 // Psycho-acoustics                                //
 /////////////////////////////////////////////////////
 
+(*
 bell 600.0 10.0 []
 bell 500.0 10.0 [0.0]
 bell 400.0 10.0 [0.0; 0.0]
-
+*)
 
 ///////////////////////////////////////////////////////////////
 // Equal temperament                                         //
@@ -90,12 +96,14 @@ bell 400.0 10.0 [0.0; 0.0]
 
 let midi2hertz (midi : int) = 8.1757989156 * (System.Math.Pow(2.0, (Convert.ToDouble(midi) / 12.0)))
 
+(*
 midi2hertz 69
+*)
 
 let ding midi = if midi <> SKIP then bell (midi2hertz midi) 3.0 []
-
+(*
 ding 69
-
+*)
 
 ///////////////////////////////////////////////////////////////
 // Musical events                                            //
@@ -107,19 +115,28 @@ let note time pitch = {time = time; pitch = pitch}
 //note 3.0 4
 //{time = 3.0; pitch = 4}
 
-let play notes =
+let play (notes : note list) =
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    let rec play notes =
-        match notes with
+    let rec play (ns : (float * seq<note>) list) =
+        match ns with
         | [] -> ()
-        | note :: _ -> 
-            if Convert.ToDouble(sw.ElapsedMilliseconds) >= note.time then 
-                ding note.pitch
-                play notes.Tail
+        | (time, notes) :: tail -> 
+            if Convert.ToDouble(sw.ElapsedMilliseconds) >= time then 
+                let notes = notes |> List.ofSeq |> List.filter (fun (note : note) -> note.pitch <> SKIP)                
+                let freqs = notes |> List.map (fun note -> midi2hertz note.pitch)
+                let durs = notes |> List.map (fun note -> 3.0)
+                bells freqs durs []
+                play tail
             else
-                play notes
-
+                play ns
+    let notes =                
+        notes
+        |> List.sortBy (fun note -> note.time)
+        |> Seq.groupBy (fun (note : note) -> note.time)
+        |> List.ofSeq
+    
     play notes
+    
     sw.Stop()
 
 let evenMelody (pitches : int list) =
@@ -127,8 +144,9 @@ let evenMelody (pitches : int list) =
     let notes = List.map2 (fun time pitch -> note time pitch) times pitches
     play notes
 
+(*
 evenMelody [70 .. 80]
-
+*)
 
 ///////////////////////////////////////////////////////////////
 // Scale                                                     //
@@ -180,6 +198,7 @@ let blues = scale [3; 2; 1; 1; 3; 2]
 let pentatonic = scale [3; 2; 2; 3; 2]
 let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 
+(*
 [0 .. 6]  //major/minor 6, blues 5, pent 4, chromatic 11
 |> List.rev
 |> List.append [0 .. 7]
@@ -190,6 +209,7 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 [0; 1; 2; 0; 0; 1; 2; 0; 2; 3; 4; SKIP; 2; 3; 4; SKIP; ]
 |> List.map (comp D major)
 |> evenMelody 
+*)
 
 ///////////////////////////////////////////////////////////////
 // Melody                                                    //
@@ -224,10 +244,12 @@ let rowRowRowYourBoat =
 let bpm beats = fun beat -> (beat * 60.0 * 1000.0) / beats
 //(bpm 120.0) 4.0
 
+(*
 rowRowRowYourBoat
 |> List.map (alterTime (bpm 90.0))
 |> List.map (alterPitch (comp C major))
 |> play
+*)
 
 //runs
 
@@ -245,9 +267,11 @@ let run fromsAndTos =
     | x :: [] -> [x]
     | _ -> run fromsAndTos []
 
+(*
 run [0; 4; -1; 1; 0]
 |> List.map (comp G major)
 |> evenMelody
+*)
 
 //bach
 
@@ -291,9 +315,7 @@ bass
 // Canon                                                     //
 ///////////////////////////////////////////////////////////////
 
-let canon f (notes : note list) = 
-    notes @ (f notes)
-    |> List.sortBy (fun note -> note.time)
+let canon f (notes : note list) = notes @ (f notes)
 
 //varieties  of canon
 let simple wait = List.map (fun note -> { note with time = note.time + wait})
@@ -314,12 +336,11 @@ rowRowRowYourBoat
 
 let canoneAllaQuarta = canon ((interval -3) >> mirror >> (simple 3.0))
 
-//(*
+(*
 melody
 |> canoneAllaQuarta
 |> List.append bass
-|> List.sortBy (fun note -> note.time)
 |> List.map (alterTime (bpm 90.0))
 |> List.map (alterPitch (comp G major))
 |> play
-//*)
+*)
