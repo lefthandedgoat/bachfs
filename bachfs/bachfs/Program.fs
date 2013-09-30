@@ -300,10 +300,26 @@ let simple wait = List.map (fun note -> { note with time = note.time + wait})
 
 let interval interval = List.map (fun note -> { note with pitch = note.pitch + interval})
 
-//let mirror = List.map (fun note
+let mirror = List.map (fun note -> { note with pitch = note.pitch * -1 })
+let crab = List.map (fun note -> { note with time = note.time * -1.0 })
+let table = mirror >> crab
 
+(*
 rowRowRowYourBoat
 |> (canon (simple 4.0))
 |> List.map (alterTime (bpm 90.0))
 |> List.map (alterPitch (comp C major))
 |> play
+*)
+
+let canoneAllaQuarta = canon ((interval -3) >> mirror >> (simple 3.0))
+
+//(*
+melody
+|> canoneAllaQuarta
+|> List.append bass
+|> List.sortBy (fun note -> note.time)
+|> List.map (alterTime (bpm 90.0))
+|> List.map (alterPitch (comp G major))
+|> play
+//*)
