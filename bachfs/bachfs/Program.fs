@@ -217,10 +217,10 @@ let chromatic = scale [1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1; 1;]
 
 let alterTime f n = note (f n.time) n.pitch
 let alterPitch f n = note n.time (f n.pitch)
-let duration2Times durations =
-        let start = ref 0.0
+let duration2Times durations start =
+        let strt = ref start
         //start at 0, then map how long each subsequent note should wait to play, and drop the last note, (thats the rev/tail/rev)
-        [!start] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> start := !start + duration; !start))
+        [!strt] @ (durations |> List.rev |> List.tail |> List.rev |> List.map (fun duration -> strt := !strt + duration; !strt))
 
 let rowRowRowYourBoat =
     let pitches = 
@@ -237,7 +237,7 @@ let rowRowRowYourBoat =
         2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;
         1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0; 1.0/3.0;
         2.0/3.0; 1.0/3.0; 2.0/3.0; 1.0/3.0; 2.0;]
-    let times = duration2Times durations
+    let times = duration2Times durations 0.0
 
     List.map2 note times pitches
 
@@ -294,15 +294,15 @@ let melody =
     let whole = call @ response @ development
     let pitches = whole |> List.map(fun (pitch, duration) -> pitch)
     let durations = whole |> List.map(fun (pitch, duration) -> duration)
-    let times = duration2Times durations
+    let times = duration2Times durations 0.5
     List.map2 note times pitches
     
 let bass =
     let triples notes = notes |> mapcat (fun x -> [x; x ;x]) 
     let pitches = (run [-7; -10] |> triples) @ (run [-12; -10] |> triples) @ run [5; 0] @ run [6; 0]
     let durations = repeats [(21, 1.0); (13, 1.0/4.0)]
-    let times = duration2Times durations    
-    List.map2 note times pitches
+    let times = duration2Times durations 0.0
+    List.map2 note times pitches 
 
 (*
 bass
