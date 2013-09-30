@@ -11,6 +11,7 @@
 //                                                           //
 //sheet music:                                               //
 //http://www.ibiblio.org/mutopia/ftp/BachJS/BWV988/bwv-988-v12/bwv-988-v12-a4.pdf//
+//                                                           //
 // Converted to f# by Chris Holt                             //
 // @lefthandedgoat                                           //
 // http://github.com/lefthandedgoat/                         //
@@ -60,12 +61,12 @@ stop()
 // Harmonics                                                 //
 ///////////////////////////////////////////////////////////////
 //
-let bells (freqs : float list) (durations : float list) harmonics =
+let bells freqs durations harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
     let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
-    let component' (freqDuration : (float * float)) (harmonic : float) (proportion : float) =
+    let component' freqDuration harmonic proportion =
         let freq, duration = freqDuration
         PercEnvelope(0.01, (proportion * duration), 1.0, -4.0, proportion, (SinOsc (harmonic * freq)))
     let freqDurs = List.map2 (fun freq dur -> (freq, dur)) freqs durations
@@ -115,14 +116,14 @@ let note time pitch = {time = time; pitch = pitch}
 //note 3.0 4
 //{time = 3.0; pitch = 4}
 
-let play (notes : note list) =
+let play notes =
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    let rec play (ns : (float * seq<note>) list) =
+    let rec play ns =
         match ns with
         | [] -> ()
         | (time, notes) :: tail -> 
             if Convert.ToDouble(sw.ElapsedMilliseconds) >= time then 
-                let notes = notes |> List.ofSeq |> List.filter (fun (note : note) -> note.pitch <> SKIP)                
+                let notes = notes |> List.ofSeq |> List.filter (fun note -> note.pitch <> SKIP)                
                 let freqs = notes |> List.map (fun note -> midi2hertz note.pitch)
                 let durs = notes |> List.map (fun note -> 3.0)
                 bells freqs durs []
@@ -132,15 +133,15 @@ let play (notes : note list) =
     let notes =                
         notes
         |> List.sortBy (fun note -> note.time)
-        |> Seq.groupBy (fun (note : note) -> note.time)
+        |> Seq.groupBy (fun note -> note.time)
         |> List.ofSeq
     
     play notes
     
     sw.Stop()
 
-let evenMelody (pitches : int list) =
-    let times = [1 .. pitches.Length] |> List.mapi (fun index _ -> Convert.ToDouble(index) * (1000.0/3.0))
+let evenMelody pitches =
+    let times = [1 .. (List.length pitches)] |> List.mapi (fun index _ -> Convert.ToDouble(index) * (1000.0/3.0))
     let notes = List.map2 (fun time pitch -> note time pitch) times pitches
     play notes
 
@@ -315,7 +316,7 @@ bass
 // Canon                                                     //
 ///////////////////////////////////////////////////////////////
 
-let canon f (notes : note list) = notes @ (f notes)
+let canon f notes = notes @ (f notes)
 
 //varieties  of canon
 let simple wait = List.map (fun note -> { note with time = note.time + wait})
@@ -323,7 +324,7 @@ let simple wait = List.map (fun note -> { note with time = note.time + wait})
 let interval interval = List.map (fun note -> { note with pitch = note.pitch + interval})
 
 let mirror = List.map (fun note -> { note with pitch = note.pitch * -1 })
-let crab = List.map (fun note -> { note with time = note.time * -1.0 })
+let crab = List.map (fun note -> { note with time = note.time * -1.0 }) //broken
 let table = mirror >> crab
 
 (*

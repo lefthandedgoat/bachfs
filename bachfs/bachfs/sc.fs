@@ -31,7 +31,7 @@ let stop () =
     let msg = new OscMessage(superCollider, "/stopAll")
     msg.Send(superColliderLanguage) |> ignore
 
-let private sinOsc (freq : float) =                
+let private sinOsc freq =                
     let id = nextId()
     
     let msg = new OscMessage(superCollider, "/s_new")
@@ -44,7 +44,7 @@ let private sinOsc (freq : float) =
     msg.Send(superCollider)
     
 let private envelope start stop duration command =
-    let envelopedSinOsc (freq : float) =        
+    let envelopedSinOsc freq =
         let msg = new OscMessage(superCollider, "/envelopedSinOsc")    
         msg.Append(tofloat32 start) |> ignore
         msg.Append(tofloat32 stop) |> ignore
@@ -57,7 +57,7 @@ let private envelope start stop duration command =
     | _ -> failwith "does not compute!"
 
 let private detectSilence command =
-    let matchPercEnvelope (commands : command list) (msg : OscMessage) =
+    let matchPercEnvelope commands (msg : OscMessage) =
         let addPercEnvelop perc =
             match perc with
             | PercEnvelope(attack, release, level, curve, proportion, SinOsc(freq)) ->
