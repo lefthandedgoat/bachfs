@@ -22,6 +22,8 @@ You should see 'OSCFunc(/mixedPercEnvelopes, nil, nil, nil)' in the bottom right
 
 f#
 ==
+Send line 20 and 21 to interactive
+
 Highlight all of sc.fs (except module definition) and send to interactive (Alt+Enter unless resharper has that binding, and you will need to rebind).
 
 Highlight all of Program.fs (from 26 down) and send to interactive.
