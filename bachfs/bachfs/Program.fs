@@ -63,7 +63,7 @@ stop()
 //
 let bells freqs durations harmonics =
     let defaultHarmonics = [1.0; 0.6; 0.4; 0.25; 0.2; 0.15]
-    let harmonicSeries = [1.0; 2.0; 3.0; 4.0; 5.0; 6.0] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
+    let harmonicSeries = [1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.2; 5.4; 6.8] //[1.0; 2.0; 3.0; 4.0; 5.0; 6.0]
     let proportions = 
         harmonics @ (Seq.skip (List.length harmonics) defaultHarmonics |> List.ofSeq)
     let component' freqDuration harmonic proportion =
@@ -135,7 +135,7 @@ let play notes =
         |> List.sortBy (fun note -> note.time)
         |> Seq.groupBy (fun note -> note.time)
         |> List.ofSeq
-    
+
     play notes
     
     sw.Stop()

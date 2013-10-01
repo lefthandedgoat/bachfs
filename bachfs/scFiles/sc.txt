@@ -1,6 +1,16 @@
-//Server.killAll
-//s.dumpOSC(0)
+//run me first: starting here (highlight and shift+enter)
+o = Server.local.options;
+o.numAudioBusChannels = 256;
+o.numControlBusChannels = 8184;
+o.numBuffers = 2048;
+o.maxNodes = 2048;
+o.maxSynthDefs = 2048;
+o.blockSize = 128;
+//down to here
 
+//then start server
+
+//then run me: starting here
 (
 a = OSCFunc( { | msg, time, addr, port |
 	var start = msg[1].asFloat;
@@ -53,21 +63,4 @@ d = OSCFunc( { | msg, time, addr, port |
 	}.play;	
 }, '/mixedPercEnvelopes' );
 )
-
-
-//m = NetAddr("127.0.0.1", NetAddr.langPort);
-
-//m.sendMsg("/envelopedSinOsc", 1, 0, 1, 300);
-
-m.sendMsg("/mixedPercEnvelopes", 1, 
-	0.01, 1.0, 1.0, -4.0, 400.0, 1.0,
-	0.01, 0.6, 1.0, -4.0, 800.0, 1.0
-);
-
-(
-{
-	var sin1 = SinOsc.ar(300);
-	var sin2 = SinOsc.ar(300.5);
-	Mix([sin1, sin2])
-}.play
-)
+//down to here
