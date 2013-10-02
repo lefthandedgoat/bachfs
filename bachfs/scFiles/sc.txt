@@ -5,7 +5,9 @@ o.numControlBusChannels = 8184;
 o.numBuffers = 2048;
 o.maxNodes = 2048;
 o.maxSynthDefs = 2048;
-o.blockSize = 128;
+o.blockSize = 1;
+o.memSize = 32768;
+o.numWireBufs = 128;
 //down to here
 
 //then start server
@@ -43,7 +45,7 @@ d = OSCFunc( { | msg, time, addr, port |
 	var size = msg[1].asInt;
 	var sins = Array.new(size);
 	var numberOfArgumentsPerEnvelope = 6;	
-			
+	
 	{ 
 		var mix = 
 		Mix.fill(size, { 
@@ -54,11 +56,11 @@ d = OSCFunc( { | msg, time, addr, port |
 			var curve = msg[5 + (index * numberOfArgumentsPerEnvelope)].asFloat;
 			var freq = msg[6 + (index * numberOfArgumentsPerEnvelope)].asFloat;
 			var proportion = msg[7 + (index * numberOfArgumentsPerEnvelope)].asFloat;
-			var env = Env.new([0, level, 0], [attack, release], curve);
+			var env = Env.perc(attack, release, level, curve);
 			var gen = EnvGen.kr(env);
-			SinOsc.ar(freq) * gen * 0.5 * proportion			
+			SinOsc.ar(freq) * gen * 0.37 * proportion ! 2		
 		}) * (1/size);
-		DetectSilence.ar(mix, doneAction:2);
+		DetectSilence.ar(mix, 0.01, 0.01, 2);
 		mix
 	}.play;	
 }, '/mixedPercEnvelopes' );

@@ -123,10 +123,10 @@ let play notes =
         | [] -> ()
         | (time, notes) :: tail -> 
             if Convert.ToDouble(sw.ElapsedMilliseconds) >= time then 
-                let notes = notes |> List.ofSeq |> List.filter (fun note -> note.pitch <> SKIP)                
-                let freqs = notes |> List.map (fun note -> midi2hertz note.pitch)
-                let durs = notes |> List.map (fun note -> 3.0)
-                bells freqs durs []
+                notes 
+                |> List.ofSeq 
+                |> List.filter (fun note -> note.pitch <> SKIP)
+                |> List.iter (fun note -> bells [(midi2hertz note.pitch)] [3.0] [])                
                 play tail
             else
                 play ns
@@ -138,6 +138,21 @@ let play notes =
 
     play notes
     
+    sw.Stop()
+
+let play3 notes =
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+    let rec play notes =
+        match notes with
+        | [] -> ()
+        | note :: _ -> 
+            if Convert.ToDouble(sw.ElapsedMilliseconds) >= note.time then 
+                ding note.pitch
+                play notes.Tail
+            else
+                play notes
+
+    play notes
     sw.Stop()
 
 let evenMelody pitches =
