@@ -60,7 +60,7 @@ d = OSCFunc( { | msg, time, addr, port |
 			var gen = EnvGen.kr(env);
 			SinOsc.ar(freq) * gen * 0.37 * proportion ! 2		
 		}) * (1/size);
-		DetectSilence.ar(mix, 0.01, 0.01, 2);
+		DetectSilence.ar(mix, 0.001, 0.01, 2);
 		mix
 	}.play;	
 }, '/mixedPercEnvelopes' );

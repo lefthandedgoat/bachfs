@@ -113,34 +113,12 @@ ding 69
 type note = { time : float; pitch : int}
 let note time pitch = {time = time; pitch = pitch}
 
-//note 3.0 4
-//{time = 3.0; pitch = 4}
+(*
+note 3.0 4
+{time = 3.0; pitch = 4}
+*)
 
 let play notes =
-    let sw = System.Diagnostics.Stopwatch.StartNew()
-    let rec play ns =
-        match ns with
-        | [] -> ()
-        | (time, notes) :: tail -> 
-            if Convert.ToDouble(sw.ElapsedMilliseconds) >= time then 
-                notes 
-                |> List.ofSeq 
-                |> List.filter (fun note -> note.pitch <> SKIP)
-                |> List.iter (fun note -> bells [(midi2hertz note.pitch)] [3.0] [])                
-                play tail
-            else
-                play ns
-    let notes =                
-        notes
-        |> List.sortBy (fun note -> note.time)
-        |> Seq.groupBy (fun note -> note.time)
-        |> List.ofSeq
-
-    play notes
-    
-    sw.Stop()
-
-let play3 notes =
     let sw = System.Diagnostics.Stopwatch.StartNew()
     let rec play notes =
         match notes with
@@ -152,7 +130,9 @@ let play3 notes =
             else
                 play notes
 
-    play notes
+    notes
+    |> List.sortBy (fun note -> note.time)
+    |> play
     sw.Stop()
 
 let evenMelody pitches =
@@ -298,18 +278,17 @@ let melody =
     let call =
         let pitches = runs [[0; -1; 3; 0]; [4]; [1; 8]]
         let durations = repeats [(2, 1.0/4.0); (1, 1.0/2.0); (14, 1.0/4.0); (1, 3.0/2.0)]
-        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations
+        List.zip pitches durations
     let response =
         let pitches = runs [[7; -1; 0]; [0; -3]]
         let durations = repeats [(10, 1.0/4.0); (1, 1.0/2.0); (2, 1.0/4.0); (1, 9.0/4.0);]            
-        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations
+        List.zip pitches durations
     let development =
         let pitches = runs [[4]; [4]; [2; -3]; [-1; -2]; [0]; [3; 5]; [1]; [1]; [1; 2]; [-1; 1; -1]; [5; 0]]
         let durations = repeats [(1, 3.0/4.0); (12, 1.0/4.0); (1, 1.0/2.0); (1, 1.0); (1, 1.0/2.0); (12, 1.0/4.0); (1, 3.0)]
-        List.map2 (fun pitch duration -> (pitch, duration)) pitches durations    
+        List.zip pitches durations    
     let whole = call @ response @ development
-    let pitches = whole |> List.map(fun (pitch, duration) -> pitch)
-    let durations = whole |> List.map(fun (pitch, duration) -> duration)
+    let pitches, durations = List.unzip whole
     let times = duration2Times durations 0.5
     List.map2 note times pitches
     
@@ -356,7 +335,7 @@ let canoneAllaQuarta = canon ((interval -3) >> mirror >> (simple 3.0))
 melody
 |> canoneAllaQuarta
 |> List.append bass
-|> List.map (alterTime (bpm 90.0))
+|> List.map (alterTime (bpm 82.0))
 |> List.map (alterPitch (comp G major))
 |> play
 *)
